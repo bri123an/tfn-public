@@ -30,6 +30,10 @@ To use, add a file default.json in the config directory with the following infor
 "jwtSecret": "pick a secret"
 }
 
+### API Documentation
+
+https://documenter.getpostman.com/view/14731631/TzK2ZYwB
+
 ### Author
 
 The Foodies Network
