@@ -1,0 +1,78 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+}
+
+.App {
+  text-align: center;
+}
+
+.slider {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.displayImage{
+  width: 800px;
+  height: 480px;
+  border-radius: 10px;
+}
+
+.right-arrow{
+  position: absolute;
+  top: 50%;
+  right: 32px;
+  font-size: 3rem;
+  color: #61dafb;
+  z-index: 10;
+  cursor: pointer;
+  user-select: none;
+}
+
+.left-arrow{
+  position: absolute;
+  top: 50%;
+  left: 32px;
+  font-size: 3rem;
+  color: #61dafb;
+  z-index: 10;
+  cursor: pointer;
+  user-select: none;
+}
+
+.slide{
+  opacity: 0;
+  transition: 1s;
+  transition-timing-function: ease;
+}
+
+.slide-active{
+  opacity: 1;
+  transition-duration: 1s;
+  transform: scale(1.08);
+}
+
+.navbar-btn {
+  font-size: 2rem;
+}
+
+.nav {
+  float: left;
+  display: inline;
+}
+
+th {
+  margin: 0;
+  align: center;
+  padding: 0.5rem;
+}
+
+td{
+  margin: 0;
+  padding: 0.5rem;
+}
+
