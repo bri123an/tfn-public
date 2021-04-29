@@ -1,0 +1,1557 @@
+{
+	"info": {
+		"_postman_id": "0e428f84-e30d-40a2-a9a3-c2956cbbcc7a",
+		"name": "Foodies",
+		"description": "# Introduction\nThis API dictates how CRUD works with REST, MongoDB, and mongoose. It checks each Foodies endpoint to see if it does what its supposed to do.\n\n# Overview\nWhen testing the API, other than the Users endpoint, it checks for a x-auth-token from a user. You would need to get one by creating a user within the application, and utilizing the token given.\n\n# Error Codes\nStatus codes expected for positive tests of these endpoints should have a status code of 200. The negative tests should usually return a 400 bad request code. It should also test when a delete request tries to delete an object that doesn't exist, returning a 404.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Positive Tests",
+			"item": [
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Creating A User",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"There's some JSON body returned\", function(){\r",
+											"    pm.response.to.be.json;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Returns a token or something\", function(){\r",
+											"    var json = pm.response.json();\r",
+											"    pm.expect(json.token).to.be.a('string');\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Auth-Token",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n    {\r\n        \"name\": \"sfdsafe\",\r\n        \"email\": \"ssdafdsar@google.com\",\r\n        \"password\": \"1234567\"\r\n    }\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/users",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"users"
+									]
+								},
+								"description": "This request creates a user and returns a jwt-token to be used for creating recipes, recipe books, and shopping lists. It's parameters include name, email, and a password. When these parameters are set and sent to the server, the password is then encrypted."
+							},
+							"response": []
+						}
+					],
+					"description": "#Create a User\n\nAPI to create a _User_. When a User is created, it should return a token.\nThe parameters the User API checks are for the **name**, **email**, and **password**"
+				},
+				{
+					"name": "Recipes",
+					"item": [
+						{
+							"name": "Get all Recipes",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"A bunch of recipes returned\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.length).to.be.above(3);\r",
+											"});\r",
+											"pm.test(\"Gives an array of all the recipes\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");  \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipes",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipes"
+									]
+								},
+								"description": "This request returns all the recipes ever created within the database. It should return an array of recipes that contain **name**, **ingredients** and **directions**. It checks if the endpoint returns the array of recipes created."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Individual Recipe",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"A recipe is returned\", function(){\r",
+											"    pm.response.to.be.json;\r",
+											"});\r",
+											"pm.test(\"Specific recipe details are there\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.name).to.be.a(\"string\");\r",
+											"    pm.expect(jsonData.ingredients).to.be.an(\"array\");  \r",
+											"    pm.expect(jsonData.directions).to.be.a(\"string\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipes/6082e57fdf6cf85e30630fd1",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipes",
+										"6082e57fdf6cf85e30630fd1"
+									]
+								},
+								"description": "This endpoint takes a single recipe created and checks if it contains the details necessary to view the recipe."
+							},
+							"response": []
+						},
+						{
+							"name": "Update Individual Recipe",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Sent the update request (nModified = 1)\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.nModified).to.equal(1);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"potato\",\r\n    \"ingredients\":[\r\n        {\r\n            \"quantity\":\"2\",\r\n            \"unit\":\"several\",\r\n            \"itemName\":\"bowl\"\r\n            }\r\n        ],\r\n    \"directions\":\"do this thing\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/recipes/6082e57fdf6cf85e30630fd1",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipes",
+										"6082e57fdf6cf85e30630fd1"
+									]
+								},
+								"description": "When a recipe is updated with new information, and is successful, it tests for a value within the output called **nModified**, in which if its equal to 1, then the update was a success."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Individual Recipe",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Specific recipe details are there\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.name).to.be.a(\"string\");\r",
+											"    pm.expect(jsonData.ingredients).to.be.an(\"array\");  \r",
+											"    pm.expect(jsonData.directions).to.be.a(\"string\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user\": \"6082e4eadf6cf85e30630fd0\",\r\n    \"name\":\"twisters\",\r\n    \"ingredients\":[{\"quantity\":\"alot\", \"unit\":\"few\", \"itemName\":\"Give\"}],\r\n    \"directions\":\"yeee\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/recipes",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipes"
+									]
+								},
+								"description": "Creates a recipe containing data which includes parameters **name**, **ingredients**, and **directions**. If successful, the endpoint tests if the data returns that the data types of each parameter was created from the recently made JSON output."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Individual Recipe",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Returns the message 'Recipe removed'\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.msg).to.equal(\"Recipe removed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipes/6088ede1fbbb05ce5ff2e47e",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipes",
+										"6088ede1fbbb05ce5ff2e47e"
+									]
+								},
+								"description": "This endpoint tests if a specific recipe is deleted and returns a message stating that **Recipe removed**."
+							},
+							"response": []
+						}
+					],
+					"description": "This is the recipes endpoint. The recipe endpoint needs a user to authorize a POST request. When the POST request is made, it sends the parameters of the **name** of the recipe, an array of the **ingredients** that has the properties **quantity**, **unit**, and **item**. This should return an array in regards to the details of the newly created recipe."
+				},
+				{
+					"name": "Recipe Books",
+					"item": [
+						{
+							"name": "Get ALL Recipe Books",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"More than 3 recipe books returned\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.length).to.be.above(3);\r",
+											"});\r",
+											"pm.test(\"Returned an array of all existing recipe books\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");  \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipe_books",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipe_books"
+									]
+								},
+								"description": "This endpoint returns all Recipe Books available, which contains parameters **name**, and **recipe**. This endpoint utilizes the other endpoint to insert into **recipe**. \nAs with the other get requests, it tests if an array of recipe books is returned."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Specific Recipe Book",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Recipe books and their recipes within the book\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.name).to.be.a(\"string\");\r",
+											"    pm.expect(jsonData.recipes).to.be.an(\"array\");  \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipe_books/60839d3ee4503efd74d8c7fe",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipe_books",
+										"60839d3ee4503efd74d8c7fe"
+									]
+								},
+								"description": "Should return a single recipe book and check its parameters if it has **name** string, and a **recipe** array."
+							},
+							"response": []
+						},
+						{
+							"name": "Update Specific Recipe Book",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Sent the update request (nModified = 1)\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.nModified).to.equal(1);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"recipes\": [\r\n        {\r\n            \"_id\": \"60839a94e4503efd74d8c7f8\",\r\n            \"user\": \"6082e4eadf6cf85e30630fd0\",\r\n            \"name\": \"skipper snacks\",\r\n            \"ingredients\": [\r\n                {\r\n                    \"_id\": \"60839a94e4503efd74d8c7f9\",\r\n                    \"quantity\": \"alot\",\r\n                    \"unit\": \"few\",\r\n                    \"itemName\": \"Give\"\r\n                }\r\n            ],\r\n            \"directions\": \"yeee\",\r\n            \"date\": \"2021-04-24T04:12:04.171Z\",\r\n            \"__v\": 0\r\n        },\r\n        {\r\n        \"_id\": \"6083aca4e4503efd74d8c811\",\r\n        \"user\": \"6082e4eadf6cf85e30630fd0\",\r\n        \"name\": \"skipper snacks\",\r\n        \"ingredients\": [\r\n            {\r\n                \"_id\": \"6083aca4e4503efd74d8c812\",\r\n                \"quantity\": \"alot\",\r\n                \"unit\": \"few\",\r\n                \"itemName\": \"Give\"\r\n            }\r\n        ],\r\n        \"directions\": \"yeee\",\r\n        \"date\": \"2021-04-24T05:29:08.966Z\",\r\n        \"__v\": 0\r\n    }\r\n    ],\r\n    \"_id\": \"60839d3ee4503efd74d8c7fe\",\r\n    \"user\": \"6082e4eadf6cf85e30630fd0\",\r\n    \"name\": \"A Albuedasfasm\",\r\n    \"date\": \"2021-04-24T04:23:26.754Z\",\r\n    \"__v\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/recipe_books/60839d3ee4503efd74d8c7fe",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipe_books",
+										"60839d3ee4503efd74d8c7fe"
+									]
+								},
+								"description": "It takes a single recipe book and updates its information with whatever the user wishes. It checks again for a **nModified=1** for a successful update. It's very good for adding more recipes for a book, and even deleting them from said book."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Recipe Book",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Book is created with the necessary credentials\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.name).to.be.a(\"string\");\r",
+											"    pm.expect(jsonData.recipes).to.be.an(\"array\");  \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user\":\"6082e4eadf6cf85e30630fd0\",\r\n    \"name\":\"Potato Album\",\r\n    \"recipes\":{\r\n        \"_id\": \"6082e57fdf6cf85e30630fd1\",\r\n        \"user\": \"6082e4eadf6cf85e30630fd0\",\r\n        \"name\": \"potato\",\r\n        \"ingredients\": [\r\n            {\r\n                \"_id\": \"6083a3eae4503efd74d8c808\",\r\n                \"quantity\": \"1\",\r\n                \"unit\": \"several\",\r\n                \"itemName\": \"bowl\"\r\n            }\r\n        ],\r\n        \"directions\": \"do this thing\",\r\n        \"date\": \"2021-04-23T15:19:27.560Z\",\r\n        \"__v\": 0\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/recipe_books",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipe_books"
+									]
+								},
+								"description": "A recipe book contaning _string_ **name** and _array_ **recipes**. It returns a JSON output which is what the tests check for a _string_ called **name**, and an _array_ called **recipes**."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Specific Recipe Book",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Removes and returns message 'Recipe book removed\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.msg).to.equal(\"Recipe book removed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipe_books/6088ede2fbbb05ce5ff2e480",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipe_books",
+										"6088ede2fbbb05ce5ff2e480"
+									]
+								},
+								"description": "Deletes a recipe book. If successful, the test should return **\"Recipe Book removed\"**. If not, what's expected is that the **Recipe Book is not found**."
+							},
+							"response": []
+						}
+					],
+					"description": "Within this API are the Recipe Books in which they contain specific parameters that comes from the recipe API. The parameters contain an _array_ of **recipes** stored within the book, and the **name** of the book."
+				},
+				{
+					"name": "Shopping Lists",
+					"item": [
+						{
+							"name": "Get ALL shopping lists",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"More than 3 shopping lists returned\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.length).to.be.above(3);\r",
+											"});\r",
+											"pm.test(\"Array of all shopping lists are returned\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData).to.be.an(\"array\");  \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/shopping_lists",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"shopping_lists"
+									]
+								},
+								"description": "The endpoint returns all shopping lists created, and tests for an _array_ returned that contains all shopping lists if successful."
+							},
+							"response": []
+						},
+						{
+							"name": "Get Specific Shopping Lists",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Returns a single shopping list with their details ('name','items')\",function(){\r",
+											"        let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.name).to.be.a(\"string\");\r",
+											"    pm.expect(jsonData.items).to.be.an(\"array\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/shopping_lists/6086659633113399dd073396",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"shopping_lists",
+										"6086659633113399dd073396"
+									]
+								},
+								"description": "The endpoint returns a specific shopping list and checks the JsonData array for details that make up the shopping list such as the parameters **name** and _array_ of **items** needed."
+							},
+							"response": []
+						},
+						{
+							"name": "Update Shopping List",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Sent the update request\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.nModified).to.equal(1);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"_id\": \"6086659633113399dd073396\",\r\n    \"user\": \"6082e4eadf6cf85e30630fd0\",\r\n    \"name\": \"Groceries\",\r\n    \"items\": [\r\n        {\r\n            \"_id\": \"6086659633113399dd073397\",\r\n            \"quantity\": \"yeeee\",\r\n            \"unit\": \"3\",\r\n            \"itemName\": \"Broccoli\"\r\n        }\r\n    ],\r\n    \"date\": \"2021-04-26T07:02:46.553Z\",\r\n    \"__v\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/shopping_lists/6086659633113399dd073396",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"shopping_lists",
+										"6086659633113399dd073396"
+									]
+								},
+								"description": "Updates a specific shopping list that has been already created with parameters **name**, and **items** needed. Checks again for _nModified_ = 1 to confirm an update. Useful if **items** need to be added or deleted."
+							},
+							"response": []
+						},
+						{
+							"name": "Create Shopping Lists",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Specific recipe details are created\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.name).to.be.a(\"string\");\r",
+											"    pm.expect(jsonData.items).to.be.an(\"array\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user\":\"6082e4eadf6cf85e30630fd0\",\r\n    \"name\":\"Groceries\",\r\n    \"items\":[{\"quantity\":\"something\",\"unit\":\"2\",\"itemName\":\"Broccoli\"}]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/shopping_lists",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"shopping_lists"
+									]
+								},
+								"description": "Creates a shopping list for a user using parameters **name** and _array_ of **items**. The tests check if the JSON it output contains the necessary parameters needed to create the shopping list"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Shopping List",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Removes and returns message 'Shopping List removed\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.msg).to.equal(\"Shopping List removed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/shopping_lists/6088ede2fbbb05ce5ff2e482",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"shopping_lists",
+										"6088ede2fbbb05ce5ff2e482"
+									]
+								},
+								"description": "Deletes a shopping list. If successful, tests should expect a message stating **\"Shopping List removed**."
+							},
+							"response": []
+						}
+					],
+					"description": "This contains the shopping list endpoints. What's expected within these requests is that they modify, create, or return shopping lists a user may create. The parameters expected of a shopping list contains **name** of the shopping list, and the **items** of a shopping list which returns an _array_ containing **quantity**, **unit**, and **itemName**."
+				}
+			],
+			"description": "Shows the best case scenarios when all the inputs are as they should be and working.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Negative Tests",
+			"item": [
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Creating an Existing User",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function(){\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"This user already existed therefore cannot be made\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors[0].msg).to.equal(\"User already exists\")\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Auth-Token",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n    {\r\n        \"name\": \"sfdsafe\",\r\n        \"email\": \"ssdafdsar@google.com\",\r\n        \"password\": \"1234567\"\r\n    }\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/users",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"users"
+									]
+								},
+								"description": "This request returns an error when attempting to create a user that's already within the database."
+							},
+							"response": []
+						},
+						{
+							"name": "Creating users without credentials",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function(){\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"User doesn't have a name\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors[0].msg).to.equal(\"Name is required\");\r",
+											"});\r",
+											"pm.test(\"No Email is supplied\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors[1].msg).to.equal(\"Please include a valid email\")\r",
+											"});\r",
+											"pm.test(\"Password is not more than 6 characters\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors[2].msg).to.equal(\"Please enter a password with 6 or more characters\")\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/users",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"users"
+									]
+								},
+								"description": "The request returns the parameters the user is missing to create it in the database."
+							},
+							"response": []
+						}
+					],
+					"description": "#Create a User\n\nAPI to create a _User_. When a User is created, it should return a token.\nThe parameters the User API checks are for the **name**, **email**, and **password**\n\n_These requests should always fail since they either provide credentials for an already existing user, or there's not enough information to create said user._"
+				},
+				{
+					"name": "Recipes",
+					"item": [
+						{
+							"name": "Getting non-existing recipe",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function(){\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"pm.test(\"Returns the message 'Invalid ID'\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.msg).to.equal(\"Invalid ID\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipes/6082e57fdf6cf85e30630fd13",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipes",
+										"6082e57fdf6cf85e30630fd13"
+									]
+								},
+								"description": "This endpoint takes a single recipe created and checks if it contains the details necessary to view the recipe.\n\n_There's no existing ID so it would return the error \"Invalid ID\"_"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Individual Recipe",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function(){\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"pm.test(\"There's no ingredients, checks if ingredients are missing.\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors[0].msg).to.be.equal(\"Ingredients is required\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/recipes/6082e57fdf6cf8553",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipes",
+										"6082e57fdf6cf8553"
+									]
+								},
+								"description": "When a recipe is updated with new information, and is successful, it tests for a value within the output called **nModified**, in which if its equal to 1, then the update was a success.\n\n_In the code it should detect if ingredients are missing, and would require the user to input the data or it'll decline it._"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Individual Recipe without ingredients",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Specific recipe details are there\",function(){\r",
+											"    let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.name).to.be.a(\"string\");\r",
+											"    pm.expect(jsonData.ingredients).to.be.an(\"array\");  \r",
+											"    pm.expect(jsonData.directions).to.be.a(\"string\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user\": \"6082e4eadf6cf85e30630fd0\",\r\n    \"name\":\"twisters\",\r\n    \"ingredients\":[{\"quantity\":\"alot\", \"unit\":\"few\", \"itemName\":\"Give\"}],\r\n    \"directions\":\"yeee\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/recipes",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipes"
+									]
+								},
+								"description": "Creates a recipe containing data which includes parameters **name**, **ingredients**, and **directions**. If successful, the endpoint tests if the data returns that the data types of each parameter was created from the recently made JSON output.\n\n_There's no ingredients available, and those are required. The database returns a bad request(400) and returns the message that the ingredients are needed."
+							},
+							"response": []
+						},
+						{
+							"name": "Deleting a non-existing recipe",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404\", function(){\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Returns the message 'Recipe not found'\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.msg).to.be.equal(\"Recipe not found\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipes/60866b1933113399dd0733e2",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipes",
+										"60866b1933113399dd0733e2"
+									]
+								},
+								"description": "This endpoint tests if a specific recipe is deleted and returns a message stating that **Recipe removed**.\n\n_For the negative test, it will try to remove a recipe that doesn't exist anymore, returning a 404 in which it cannot find the recipe._"
+							},
+							"response": []
+						}
+					],
+					"description": "This is the recipes endpoint. The recipe endpoint needs a user to authorize a POST request. When the POST request is made, it sends the parameters of the **name** of the recipe, an array of the **ingredients** that has the properties **quantity**, **unit**, and **item**. This should return an array in regards to the details of the newly created recipe.\n\n_These are negative tests once again and should always return an error when attempting you utilize these types of endpoints._"
+				},
+				{
+					"name": "Recipe Books",
+					"item": [
+						{
+							"name": "Getting Invalid Recipe Book",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function(){\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"pm.test(\"Returns the message 'Invalid ID'\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.msg).to.equal(\"Invalid ID\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipe_books/60835",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipe_books",
+										"60835"
+									]
+								},
+								"description": "Should return a single recipe book and check its parameters if it has **name** string, and a **recipe** array.\n\n_The ID for the recipe doesn't exist, therefore \"Invalid ID\"_"
+							},
+							"response": []
+						},
+						{
+							"name": "Fail to update recipe book",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function(){\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"pm.test(\"There's no ingredients, checks if ingredients are missing.\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors[0].msg).to.be.equal(\"Recipes is required\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/recipe_books/60839d3ee4503efd74d845",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipe_books",
+										"60839d3ee4503efd74d845"
+									]
+								},
+								"description": "It takes a single recipe book and updates its information with whatever the user wishes. It checks again for a **nModified=1** for a successful update. It's very good for adding more recipes for a book, and even deleting them from said book.\n\n_This endpoint cannot update the recipe book because its completely missing recipes that make up the book._"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Recipe Book Fail",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function(){\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"pm.test(\"There's no ingredients, checks if ingredients are missing.\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors[0].msg).to.be.equal(\"Recipes is required\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user\":\"6082e4eadf6cf85e30630fd0\",\r\n    \"name\":\"Potato Album\",\r\n        \"directions\": \"do this thing\",\r\n        \"date\": \"2021-04-23T15:19:27.560Z\",\r\n        \"__v\": 0\r\n    \r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/recipe_books",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipe_books"
+									]
+								},
+								"description": "A recipe book contaning _string_ **name** and _array_ **recipes**. It returns a JSON output which is what the tests check for a _string_ called **name**, and an _array_ called **recipes**.\n\n_The input for this test is that it doesn't come with recipes, a required product within this code, returning a 400 bad request._"
+							},
+							"response": []
+						},
+						{
+							"name": "Deleting a nonexisting recipe book",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404\", function(){\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Returns the message 'Recipe book not found'\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.msg).to.be.equal(\"Recipe book not found\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/recipe_books/60866a5433113399dd0733c1",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"recipe_books",
+										"60866a5433113399dd0733c1"
+									]
+								},
+								"description": "Deletes a recipe book. If successful, the test should return **\"Recipe Book removed\"**. If not, what's expected is that the **Recipe Book is not found**.\n\n_For the negative test, it will try to remove a recipe that doesn't exist anymore, returning a 404 in which it cannot find the book._"
+							},
+							"response": []
+						}
+					],
+					"description": "Within this API are the Recipe Books in which they contain specific parameters that comes from the recipe API. The parameters contain an _array_ of **recipes** stored within the book, and the **name** of the book."
+				},
+				{
+					"name": "Shopping Lists",
+					"item": [
+						{
+							"name": "Get Invalid Shopping Lists",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"Returns a single shopping list with their details ('name','items')\",function(){\r",
+											"        let jsonData = pm.response.json()\r",
+											"    pm.expect(jsonData.name).to.be.a(\"string\");\r",
+											"    pm.expect(jsonData.items).to.be.an(\"array\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/shopping_lists/6086659633113399dd073396",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"shopping_lists",
+										"6086659633113399dd073396"
+									]
+								},
+								"description": "The endpoint returns a specific shopping list and checks the JsonData array for details that make up the shopping list such as the parameters **name** and _array_ of **items** needed.\n\n_The shopping list should return with a bad request and an invalid id variable due to the id not existing_"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Shopping List without items",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function(){\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"pm.test(\"Items is absent therefore items is required.\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors[0].msg).to.equal(\"Items is required\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"_id\": \"6086659633113399dd073396\",\r\n    \"user\": \"6082e4eadf6cf85e30630fd0\",\r\n    \"name\": \"Groceries\",\r\n    \"date\": \"2021-04-26T07:02:46.553Z\",\r\n    \"__v\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/shopping_lists/6086659633113399dd07339",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"shopping_lists",
+										"6086659633113399dd07339"
+									]
+								},
+								"description": "Updates a specific shopping list that has been already created with parameters **name**, and **items** needed. Checks again for _nModified_ = 1 to confirm an update. Useful if **items** need to be added or deleted.\n\n_The shopping list is missing items and cannot be created unless items are defined._"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Shopping Lists without items",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 400\", function(){\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"pm.test(\"Items is absent therefore items is required.\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.errors[0].msg).to.equal(\"Items is required\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"user\":\"6082e4eadf6cf85e30630fd0\",\r\n    \"name\":\"Groceries\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/shopping_lists",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"shopping_lists"
+									]
+								},
+								"description": "Creates a shopping list for a user using parameters **name** and _array_ of **items**. The tests check if the JSON it output contains the necessary parameters needed to create the shopping list\n\n_The shopping list cannot exist without **items**, making it invalid for creation_"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete a nonexisting Shopping List",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404\", function(){\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Returns the message 'Shopping List not found'\", function(){\r",
+											"    let jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.msg).to.be.equal(\"Shopping List not found\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{jwt-token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/shopping_lists/6087a55747d84b2abb1d52fd",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"shopping_lists",
+										"6087a55747d84b2abb1d52fd"
+									]
+								},
+								"description": "Deletes a shopping list. If successful, tests should expect a message stating **\"Shopping List removed**.\n\n_The negative test will try to remove a shopping list that doesn't exist anymore, returning a 404 in which it cannot find the recipe._"
+							},
+							"response": []
+						}
+					],
+					"description": "This contains the shopping list endpoints. What's expected within these requests is that they modify, create, or return shopping lists a user may create. The parameters expected of a shopping list contains **name** of the shopping list, and the **items** of a shopping list which returns an _array_ containing **quantity**, **unit**, and **itemName**."
+				}
+			],
+			"description": "These requests are full of inputs that should result in errors when trying to interact with the backend API in a bad way.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
